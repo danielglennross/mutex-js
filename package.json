@@ -1,0 +1,25 @@
+{
+  "name": "mutex-js",
+  "version": "1.0.0",
+  "description": "provides a mechanism for syncing around resources when dealing with parallel promise calls",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha -R spec ./test/index.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielglennross/mutex-js.git"
+  },
+  "keywords": [
+    "mutex-js"
+  ],
+  "author": "daniel ross",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^3.5.0"
+  },
+  "bugs": {
+    "url": "https://github.com/danielglennross/mutex-js/issues"
+  },
+  "homepage": "https://github.com/danielglennross/mutex-js#readme"
+}
