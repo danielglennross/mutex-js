@@ -7,11 +7,11 @@ const Mutex = requires('mutex-js');
 
 class Sync {
   constructor() {
-    this.mutex = new Mutex();
+    this._mutex = new Mutex();
   }
 
   run() {
-    return this.mutex.lock(() => this._doSyncWork());
+    return this._mutex.lock(() => this._doSyncWork());
   }
 
   _doSyncWork() {

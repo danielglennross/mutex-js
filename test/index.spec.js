@@ -47,11 +47,11 @@ class RaceConditionScenario {
 describe('mutex - race condition without mutex', () => {
 
   beforeEach(done => {
-    fs.writeFile(file, '[]', err => done());
+    fs.writeFile(file, '[]', () => done());
   });
 
   afterEach(done => {
-    fs.unlink(file, err => done());
+    fs.unlink(file, () => done());
   });
 
   const findIn = (list, val) => list.filter(x => x === val);
