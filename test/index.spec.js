@@ -20,7 +20,7 @@ class RaceConditionScenario {
   }
 
   writeFile(list) {
-    return new Promise((resolve) =>
+    return new Promise((resolve, reject) =>
       fs.writeFile(file, JSON.stringify(list), (err) =>
         (err ? reject(err) : resolve())
       )
@@ -31,7 +31,7 @@ class RaceConditionScenario {
     return this.readFile()
     .then(list => {
       list.push(val);
-      return this.writeFile(list)
+      return this.writeFile(list);
     });
   }
 
@@ -54,7 +54,7 @@ describe('mutex - race condition without mutex', () => {
     fs.unlink(file, () => done());
   });
 
-  const findIn = (list, val) => list.filter(x => x === val);
+  const findIn = (list, val) => list.filter(x => x === val)[0];
 
   it(`should return fully populated array when race 
       un-safe methods are called sequentially`, done => {
@@ -90,7 +90,6 @@ describe('mutex - race condition without mutex', () => {
     .then(list => {
       expect(list).to.exist;
       expect(list).to.have.lengthOf(1);
-      expect(findIn(list, 3)).to.exist;
       done();
     });
   });
