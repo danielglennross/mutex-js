@@ -27,20 +27,20 @@ class RaceConditionScenario {
     );
   }
 
-  doWork(val) {
+  readAndWriteWithoutLock(val) {
+    return this._doWork(val);
+  }
+
+  readAndWriteWithLock(val) {
+    return this.mutex.lock(() => this._doWork(val));
+  }
+
+  _doWork(val) {
     return this.readFile()
     .then(list => {
       list.push(val);
       return this.writeFile(list);
     });
-  }
-
-  readAndWriteWithoutLock(val) {
-    return this.doWork(val);
-  }
-
-  readAndWriteWithLock(val) {
-    return this.mutex.lock(() => this.doWork(val));
   }
 }
 
@@ -54,8 +54,6 @@ describe('mutex - race condition without mutex', () => {
     fs.unlink(file, () => done());
   });
 
-  const findIn = (list, val) => list.filter(x => x === val)[0];
-
   it(`should return fully populated array when race 
       un-safe methods are called sequentially`, done => {
     const race = new RaceConditionScenario();
@@ -68,10 +66,10 @@ describe('mutex - race condition without mutex', () => {
     .then(list => {
       expect(list).to.exist;
       expect(list).to.have.lengthOf(4);
-      expect(findIn(list, 0)).to.exist;
-      expect(findIn(list, 1)).to.exist;
-      expect(findIn(list, 2)).to.exist;
-      expect(findIn(list, 3)).to.exist;
+      expect(list.includes(0)).to.be.true;
+      expect(list.includes(1)).to.be.true;
+      expect(list.includes(2)).to.be.true;
+      expect(list.includes(3)).to.be.true;
       done();
     });
   });
@@ -106,10 +104,10 @@ describe('mutex - race condition without mutex', () => {
     .then(list => {
       expect(list).to.exist;
       expect(list).to.have.lengthOf(4);
-      expect(findIn(list, 0)).to.exist;
-      expect(findIn(list, 1)).to.exist;
-      expect(findIn(list, 2)).to.exist;
-      expect(findIn(list, 3)).to.exist;
+      expect(list.includes(0)).to.be.true;
+      expect(list.includes(1)).to.be.true;
+      expect(list.includes(2)).to.be.true;
+      expect(list.includes(3)).to.be.true;
       done();
     });
   });
@@ -128,10 +126,10 @@ describe('mutex - race condition without mutex', () => {
     .then(list => {
       expect(list).to.exist;
       expect(list).to.have.lengthOf(4);
-      expect(findIn(list, 0)).to.exist;
-      expect(findIn(list, 1)).to.exist;
-      expect(findIn(list, 2)).to.exist;
-      expect(findIn(list, 3)).to.exist;
+      expect(list.includes(0)).to.be.true;
+      expect(list.includes(1)).to.be.true;
+      expect(list.includes(2)).to.be.true;
+      expect(list.includes(3)).to.be.true;
       done();
     });
   });

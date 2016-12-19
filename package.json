@@ -1,7 +1,7 @@
 {
   "name": "mutex-js",
   "version": "1.0.0",
-  "description": "provides a mechanism for syncing around resources when dealing with parallel promise calls",
+  "description": "provides a mechanism for locking around code requiring synchronization when dealing with parallel calls",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha -R spec ./test/index.spec.js"
