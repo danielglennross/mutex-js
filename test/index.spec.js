@@ -44,7 +44,7 @@ class RaceConditionScenario {
   }
 }
 
-describe('mutex - race condition without mutex', () => {
+describe('race condition', () => {
 
   beforeEach(done => {
     fs.writeFile(file, '[]', () => done());
@@ -54,84 +54,92 @@ describe('mutex - race condition without mutex', () => {
     fs.unlink(file, () => done());
   });
 
-  it(`should return fully populated array when race 
-      un-safe methods are called sequentially`, done => {
-    const race = new RaceConditionScenario();
+  describe('without locking', () => {
 
-    race.readAndWriteWithoutLock(0)
-    .then(() => race.readAndWriteWithoutLock(1))
-    .then(() => race.readAndWriteWithoutLock(2))
-    .then(() => race.readAndWriteWithoutLock(3))
-    .then(() => race.readFile())
-    .then(list => {
-      expect(list).to.exist;
-      expect(list).to.have.lengthOf(4);
-      expect(list.includes(0)).to.be.true;
-      expect(list.includes(1)).to.be.true;
-      expect(list.includes(2)).to.be.true;
-      expect(list.includes(3)).to.be.true;
-      done();
+    it(`should return fully populated array when race 
+        un-safe methods are called sequentially`, done => {
+      const race = new RaceConditionScenario();
+
+      race.readAndWriteWithoutLock(0)
+      .then(() => race.readAndWriteWithoutLock(1))
+      .then(() => race.readAndWriteWithoutLock(2))
+      .then(() => race.readAndWriteWithoutLock(3))
+      .then(() => race.readFile())
+      .then(list => {
+        expect(list).to.exist;
+        expect(list).to.have.lengthOf(4);
+        expect(list.includes(0)).to.be.true;
+        expect(list.includes(1)).to.be.true;
+        expect(list.includes(2)).to.be.true;
+        expect(list.includes(3)).to.be.true;
+        done();
+      });
     });
+
+    it(`should return populated array with only last item when race 
+        un-safe methods are called in parallel`, done => {
+      const race = new RaceConditionScenario();
+
+      Promise.all([
+        race.readAndWriteWithoutLock(0),
+        race.readAndWriteWithoutLock(1),
+        race.readAndWriteWithoutLock(2),
+        race.readAndWriteWithoutLock(3)
+      ])
+      .then(() => race.readFile())
+      .then(list => {
+        expect(list).to.exist;
+        expect(list).to.have.lengthOf(1);
+        done();
+      });
+    });
+
   });
 
-  it(`should return populated array with only last item when race 
-      un-safe methods are called in parallel`, done => {
-    const race = new RaceConditionScenario();
+  describe('with locking', () => {
 
-    Promise.all([
-      race.readAndWriteWithoutLock(0),
-      race.readAndWriteWithoutLock(1),
-      race.readAndWriteWithoutLock(2),
-      race.readAndWriteWithoutLock(3)
-    ])
-    .then(() => race.readFile())
-    .then(list => {
-      expect(list).to.exist;
-      expect(list).to.have.lengthOf(1);
-      done();
+    it(`should return fully populated array when race 
+        un-safe methods are called sequentially`, done => {
+      const race = new RaceConditionScenario();
+
+      race.readAndWriteWithLock(0)
+      .then(() => race.readAndWriteWithLock(1))
+      .then(() => race.readAndWriteWithLock(2))
+      .then(() => race.readAndWriteWithLock(3))
+      .then(() => race.readFile())
+      .then(list => {
+        expect(list).to.exist;
+        expect(list).to.have.lengthOf(4);
+        expect(list.includes(0)).to.be.true;
+        expect(list.includes(1)).to.be.true;
+        expect(list.includes(2)).to.be.true;
+        expect(list.includes(3)).to.be.true;
+        done();
+      });
     });
-  });
 
-  it(`should return fully populated array when race 
-      un-safe methods are called sequentially with locking`, done => {
-    const race = new RaceConditionScenario();
+    it(`should return fully populated array when race 
+        un-safe methods are called in parralel`, done => {
+      const race = new RaceConditionScenario();
 
-    race.readAndWriteWithLock(0)
-    .then(() => race.readAndWriteWithLock(1))
-    .then(() => race.readAndWriteWithLock(2))
-    .then(() => race.readAndWriteWithLock(3))
-    .then(() => race.readFile())
-    .then(list => {
-      expect(list).to.exist;
-      expect(list).to.have.lengthOf(4);
-      expect(list.includes(0)).to.be.true;
-      expect(list.includes(1)).to.be.true;
-      expect(list.includes(2)).to.be.true;
-      expect(list.includes(3)).to.be.true;
-      done();
+      Promise.all([
+        race.readAndWriteWithLock(0),
+        race.readAndWriteWithLock(1),
+        race.readAndWriteWithLock(2),
+        race.readAndWriteWithLock(3)
+      ])
+      .then(() => race.readFile())
+      .then(list => {
+        expect(list).to.exist;
+        expect(list).to.have.lengthOf(4);
+        expect(list.includes(0)).to.be.true;
+        expect(list.includes(1)).to.be.true;
+        expect(list.includes(2)).to.be.true;
+        expect(list.includes(3)).to.be.true;
+        done();
+      });
     });
-  });
 
-  it(`should return fully populated array when race 
-      un-safe methods are called in parralel with locking`, done => {
-    const race = new RaceConditionScenario();
-
-    Promise.all([
-      race.readAndWriteWithLock(0),
-      race.readAndWriteWithLock(1),
-      race.readAndWriteWithLock(2),
-      race.readAndWriteWithLock(3)
-    ])
-    .then(() => race.readFile())
-    .then(list => {
-      expect(list).to.exist;
-      expect(list).to.have.lengthOf(4);
-      expect(list.includes(0)).to.be.true;
-      expect(list.includes(1)).to.be.true;
-      expect(list.includes(2)).to.be.true;
-      expect(list.includes(3)).to.be.true;
-      done();
-    });
   });
 
 });
