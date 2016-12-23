@@ -22,17 +22,20 @@ Wrapping the function implementation in a locking mechanism ensures that only on
 ```javascript
 mutex = new Mutex();
 
+const readFromFile = () => {...} // reads file, returns a promise with file data
+const appendData   = (data, arg) => {...} // appends args to data, returns a promise with modified data
+const writeToFile  = (data) => {...} // writes data to file, returns a promise
+
 const run = (arg) =>
   mutex.lock(
     readFromFile()
     .then(data => appendData(data, arg))
     .then(writeToFile)
   );
-...
 
 Promise.all([
-  run(args1),
-  run(args2)
+  run('foo'),
+  run('bar')
 ])
 .then(...)
 .catch(...)
