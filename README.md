@@ -1,34 +1,39 @@
 # mutex-js
-provides a mechanism for locking around code requiring synchronization when dealing with parallel calls
-(e.g. by calling `Promise.all()`)
+Provides a promise-based mechanism for locking around code which requires synchronization
+(i.e. you may want to synchronize functions that span multiple iterations of the event loop).
 
-## example
+## Install
+`npm install --save mutex-js`
+
+## Getting started
 ```javascript
-// example class using locking mechanism to synchronize parallel async calls
 const Mutex = requires('mutex-js');
-class Synchronize {
-  constructor() {
-    this._mutex = new Mutex();
-  }
 
-  run(args) {
-    return this._mutex.lock(() => this._doCritialWork(args));
-  }
+const mutex = new Mutex();
+mutex.lock(() => {...});
+```
 
-  _doCritialWork(args) {
-    ...
-  }
-}
+## Example
+Below, we call an async function `run` several times with different args (the calls will run in parallel).
+The function reads data from a file, appends the input to the data and finally writes the modified data back to the file.
+Without synchronization, each call to `run` may overlap the results of the previous one. 
+Wrapping the function implementation in a locking mechanism ensures that only one call is executing the critical section at a time.
 
+```javascript
+mutex = new Mutex();
+
+const run = (arg) =>
+  mutex.lock(
+    readFromFile()
+    .then(data => appendData(data, arg))
+    .then(writeToFile)
+  );
 ...
 
-// example caller triggering parallel async calls
-const synchronize = new Synchronize();
 Promise.all([
-  synchronize.run(args1),
-  synchronize.run(args2),
-  synchronize.run(args3),
-  synchronize.run(args4)
+  run(args1),
+  run(args2)
 ])
 .then(...)
+.catch(...)
 ```
