@@ -19,14 +19,6 @@ class RaceConditionScenario {
     );
   }
 
-  writeFile(list) {
-    return new Promise((resolve, reject) =>
-      fs.writeFile(file, JSON.stringify(list), (err) =>
-        (err ? reject(err) : resolve())
-      )
-    );
-  }
-
   readAndWriteWithoutLock(val) {
     return this._doWork(val);
   }
@@ -35,11 +27,19 @@ class RaceConditionScenario {
     return this.mutex.lock(() => this._doWork(val));
   }
 
+  _writeFile(list) {
+    return new Promise((resolve, reject) =>
+      fs.writeFile(file, JSON.stringify(list), (err) =>
+        (err ? reject(err) : resolve())
+      )
+    );
+  }
+
   _doWork(val) {
     return this.readFile()
     .then(list => {
       list.push(val);
-      return this.writeFile(list);
+      return this._writeFile(list);
     });
   }
 }
@@ -136,6 +136,24 @@ describe('race condition', () => {
         expect(list.includes(1)).to.be.true;
         expect(list.includes(2)).to.be.true;
         expect(list.includes(3)).to.be.true;
+        done();
+      });
+    });
+
+    it('should return a rejected promise if the locked fn throws', done => {
+      const race = new RaceConditionScenario();
+      race._doWork = () => { throw Error('oops'); };
+
+      Promise.all([
+        race.readAndWriteWithLock(0),
+        race.readAndWriteWithLock(1),
+        race.readAndWriteWithLock(2),
+        race.readAndWriteWithLock(3)
+      ])
+      .then(() => race.readFile())
+      .catch(err => {
+        expect(err).to.exist;
+        expect(err.message).to.equal('oops');
         done();
       });
     });
