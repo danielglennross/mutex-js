@@ -20,11 +20,14 @@ Without synchronization, each call to `run` may overlap the results of the previ
 Wrapping the function implementation in a locking mechanism ensures that only one call is executing the critical section at a time.
 
 ```javascript
-mutex = new Mutex();
+const mutex = new Mutex();
 
-const readFromFile = () => {...} // reads file, returns a promise with file data
-const appendData   = (data, arg) => {...} // appends args to data, returns a promise with modified data
-const writeToFile  = (data) => {...} // writes data to file, returns a promise
+// reads file, returns a promise with file data
+const readFromFile = () => {...}
+// appends arg to data, returns a promise with modified data
+const appendData = (data, arg) => {...}
+// writes data to file, returns a promise
+const writeToFile = (data) => {...}
 
 const run = (arg) =>
   mutex.lock(
